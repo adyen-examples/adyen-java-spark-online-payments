@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+    <h2 class="title-status">Working on it!</h2>
+
+    <script>
+
+        const structurePaymentRequest = () => {
+            const paymentData = localStorage.getItem('redirectPaymentData');
+            let values_array = {
+                "MD": "{{ MD }}",
+                "PaRes": "{{ PaRes }}"
+            };
+            const values = {
+                paymentData: paymentData,
+                details: values_array
+            };
+            return values;
+        };
+
+        console.log("fetching request");
+
+        fetch('/api/handleShopperRedirect', {
+            method: 'POST',
+            headers: {
+                Accept: 'application/json, text/plain, */*',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(structurePaymentRequest())
+        }).then(response => {
+            localStorage.removeItem("redirectPaymentData");
+            window.location.href = response.url;
+        });
+
+    </script>
+{% endblock %}
