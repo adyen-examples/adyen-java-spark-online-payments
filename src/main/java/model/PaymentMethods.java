@@ -3,7 +3,6 @@ package model;
 import com.adyen.Client;
 import com.adyen.enums.Environment;
 import com.adyen.model.Amount;
-import com.adyen.model.checkout.PaymentMethodDetails;
 import com.adyen.model.checkout.PaymentMethodsRequest;
 import com.adyen.model.checkout.PaymentMethodsResponse;
 import com.adyen.service.Checkout;
@@ -16,15 +15,19 @@ import java.io.IOException;
 
 public class PaymentMethods {
 
-	public static String getPaymentMethods() {
+	public static String getPaymentMethods(String type) {
 		Client client = new Client(Main.apiKey, Environment.TEST);
 		Checkout checkout = new Checkout(client);
 
 		PaymentMethodsRequest paymentMethodsRequest = new PaymentMethodsRequest();
 		paymentMethodsRequest.setMerchantAccount(Main.merchantAccount);
-		paymentMethodsRequest.setCountryCode("NL");
+
 		Amount amount = new Amount();
-		amount.setCurrency("EUR");
+		if (type.equals("dotpay")) {
+			amount.setCurrency("PLN");
+		} else {
+			amount.setCurrency("EUR");
+		}
 		amount.setValue(1000L);
 		paymentMethodsRequest.setAmount(amount);
 		paymentMethodsRequest.setChannel(PaymentMethodsRequest.ChannelEnum.WEB);

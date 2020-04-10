@@ -6,6 +6,11 @@ version "0.1"
 
 sourceCompatibility = 1.8
 
+description ="""
+Demo Adyen checkout integration with a Java Spark based backend 
+Project name: ${project.name}
+"""
+
 application {
     mainClassName = 'controller.Main'
 }
@@ -19,5 +24,6 @@ dependencies {
     implementation "org.slf4j:slf4j-simple:1.7.25"
     implementation "com.sparkjava:spark-template-jinjava:2.7.1"
     implementation 'org.apache.httpcomponents:httpclient:4.5.11'
-    implementation 'com.adyen:adyen-java-api-library:4.0.1'
+    implementation 'com.adyen:adyen-java-api-library:5.0.0'
+	implementation 'org.jetbrains:annotations:15.0'
 }

@@ -1,6 +1,5 @@
 package controller;
 
-import com.adyen.model.PaymentResult;
 import com.adyen.model.checkout.*;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

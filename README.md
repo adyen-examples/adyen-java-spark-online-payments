@@ -8,7 +8,7 @@ This repository includes examples of PCI-compliant UI integrations for online pa
 
 * [Drop-in](https://docs.adyen.com/checkout/drop-in-web)
 * [Component](https://docs.adyen.com/checkout/components-web)
-  * ACH
+  * ACH (not supported ATM b/c Java API Library doesn't support)
   * Alipay
   * Boleto
   * Card
@@ -19,15 +19,24 @@ This repository includes examples of PCI-compliant UI integrations for online pa
   * Sofort
   
 
-## Requirements - TODO
+## Requirements
 
 * Java 1.8
 * Gradle
 
+## Dependencies
+The Gradle build will install the following files from maven central
+* Java Spark v2.8.0
+    * Simple Logging Facade (slf4j-simple v1.7.25)
+    * Jinjava template v2.7.1
+* org.apache.http URLEncodedUtils v4.5.11
+* Adyen Java API Library v5.0.0
+
+
 ## Installation - TODO
 
 1. Clone this repo
-2. ...
+2. Make sure you have Java 1.8 and Gradle installed on your machine
  
 ## Usage - TODO
 
@@ -37,10 +46,7 @@ This repository includes examples of PCI-compliant UI integrations for online pa
     checkout_apikey = SampleAPIKey
     origin_key = SampleOriginKey
     ```
-2. Make sure your (venv) is activated by running `source ./venv/bin/activate` from your projects root.
-3. Run `./start.sh` to:
-    * Initialize the required environment variables. This step is necessary every time you re-activate your (venv)
-    * Run flask 
+3. Run `gradle run`
 3. Visit [http://localhost:8080](http://localhost:8080) and select an integration type!
 
 ## Contributing

@@ -1,6 +1,5 @@
 package controller;
 
-import com.adyen.model.checkout.PaymentDetails;
 import com.adyen.model.checkout.PaymentsDetailsRequest;
 import com.adyen.model.checkout.PaymentsRequest;
 import com.adyen.model.checkout.PaymentsResponse;
@@ -8,12 +7,11 @@ import com.google.common.io.ByteStreams;
 import com.google.common.io.Closeables;
 import com.google.common.net.MediaType;
 import org.apache.http.NameValuePair;
+import spark.QueryParamsMap;
 import view.RenderUtil;
 
 import java.io.*;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 import model.PaymentMethods;
@@ -27,6 +25,7 @@ import spark.Response;
 public class Main {
 
 	private static final File FAVICON_PATH = new File("src/main/resources/static/img/favicon.ico");
+	private static final String configFile = "config.properties";
 
 	public static String merchantAccount = "";
 	public static String apiKey = "";
@@ -38,7 +37,7 @@ public class Main {
 	public static void main(String[] args) {
 		port(8080);
 		staticFiles.location("/static");
-		initalizeConstants();
+		readConfigFile();
 
 		// Routes
 		get("/", (req, res) -> {
@@ -59,7 +58,7 @@ public class Main {
 			String integrationType = req.params(":integration");
 
 			Map<String, Object> context = new HashMap<>();
-			context.put("paymentMethods", PaymentMethods.getPaymentMethods());
+			context.put("paymentMethods", PaymentMethods.getPaymentMethods(integrationType));
 			context.put("originKey", originKey);
 			context.put("integrationType", integrationType);
 
@@ -67,11 +66,13 @@ public class Main {
 		});
 
 		post("/api/getPaymentMethods", (req, res) -> {
-			String paymentMethods = PaymentMethods.getPaymentMethods();
+			String paymentMethods = PaymentMethods.getPaymentMethods("");
+
 			return paymentMethods;
 		});
 
 		post("/api/initiatePayment", (req, res) -> {
+			System.out.println("Response received from client:\n" + req.body());
 			PaymentsRequest request = FrontendParser.parsePayment(req.body());
 			String response = Payments.makePayment(request);
 
@@ -86,24 +87,46 @@ public class Main {
 		});
 
 		get("/api/handleShopperRedirect", (req, res) -> {
-			System.out.println("GET result\n" + req.body());
-			res.redirect("/error"); //TODO: Evaluate contents of res at this point to handle redirect
-			return res;
+			System.out.println("GET redirect handler");
+
+			QueryParamsMap queryMap = req.queryMap();
+			String key = "";
+			String value = "";
+
+			if (queryMap.hasKey("redirectResult")) {
+				key =  "redirectResult";
+				value = queryMap.value("redirectResult");
+
+			} else if (queryMap.hasKey("payload")) {
+				key = "payload";
+				value = queryMap.value("payload");
+			}
+
+			Map<String, Object> context = new HashMap<>();
+			String valuesArray = "{\n" +
+					"\"" + key + "\": \"" + value + "\"" +
+					"}";
+			context.put("valuesArray", valuesArray);
+
+			return RenderUtil.render(context, "templates/fetch-payment-data.html"); // Get paymentData from localStorage
 		});
 
 		post("/api/handleShopperRedirect", (req, res) -> {
-			System.out.println("POST result\n" + req.body() + "\n");
+			System.out.println("POST redirect handler");
 
 			// Triggers when POST contains query params. Triggers on call back from issuer after 3DS2 challenge w/ MD & PaRes
-			if (req.body().contains("&")) {
+			if (!req.body().contains("paymentData")) {
 				List<NameValuePair> params = FrontendParser.parseQueryParams(req.body());
-				System.out.println(params.toString());
 				String md = params.get(0).getValue();
 				String paRes = params.get(1).getValue();
 
 				Map<String, Object> context = new HashMap<>();
-				context.put("MD", md);
-				context.put("PaRes", paRes);
+				String valuesArray = "{\n" +
+						"\"MD\": \"" + md + "\",\n" +
+						"\"PaRes\": \"" + paRes + "\"\n" +
+						"}";
+				context.put("valuesArray", valuesArray);
+
 				return RenderUtil.render(context, "templates/fetch-payment-data.html"); // Get paymentData from localStorage
 
 			} else {
@@ -115,8 +138,10 @@ public class Main {
 				switch (result) {
 					case AUTHORISED:
 						res.redirect("/success");
+						break;
 					case RECEIVED: case PENDING:
 						res.redirect("/pending");
+						break;
 					default:
 						res.redirect("/failed");
 				}
@@ -149,15 +174,6 @@ public class Main {
 		});
 	}
 
-	private static void initalizeConstants() {
-		merchantAccount = "TylerDouglas";
-		apiKey = "AQEyhmfxL4jIYhVBw0m/n3Q5qf3VaY9UCJ1+XWZe9W27jmlZiiSaWGoa4mOFeQne5hiuhQsQwV1bDb7kfNy1WIxIIkxgBw==-hJYG90gqLYPclLs6We+q8CUtAsa+KgXr/iWftd+rrCM=-89EKHpWfW8ABmGF3";
-		originKey = "pub.v2.8115499067697722.aHR0cDovL2xvY2FsaG9zdDo4MDgw.I4ixvXum4JGOjgI0Nd3YQ49P4AWvIncxMv41suCoW1Y";
-		paymentMethodsUrl = "https://checkout-test.adyen.com/v52/paymentMethods";
-		paymentsUrl = "https://checkout-test.adyen.com/v52/payments";
-		paymentsDetailsUrl = "https://checkout-test.adyen.com/v52/payments/details";
-	}
-
 	private static Object getFavicon(Response res) {
 		try {
 			InputStream in = null;
@@ -179,5 +195,26 @@ public class Main {
 			res.status(500);
 			return ex.getMessage();
 		}
+	}
+
+	private static void readConfigFile() {
+
+		Properties prop = new Properties();
+
+		try {
+			BufferedInputStream in = new BufferedInputStream(new FileInputStream(configFile));
+			prop.load(in);
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		merchantAccount = prop.getProperty("merchantAccount");
+		apiKey = prop.getProperty("apiKey");
+		originKey = prop.getProperty("originKey");
+		paymentMethodsUrl = prop.getProperty("paymentMethodsUrl");
+		paymentsUrl = prop.getProperty("paymentsUrl");
+		paymentsDetailsUrl = prop.getProperty("paymentsDetailsUrl");
+
 	}
 }

@@ -8,10 +8,7 @@
 
         const structurePaymentRequest = () => {
             const paymentData = localStorage.getItem('redirectPaymentData');
-            let values_array = {
-                "MD": "{{ MD }}",
-                "PaRes": "{{ PaRes }}"
-            };
+            let values_array = {{ valuesArray }};
             const values = {
                 paymentData: paymentData,
                 details: values_array
