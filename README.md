@@ -8,7 +8,7 @@ This repository includes examples of PCI-compliant UI integrations for online pa
 
 * [Drop-in](https://docs.adyen.com/checkout/drop-in-web)
 * [Component](https://docs.adyen.com/checkout/components-web)
-  * ACH (not supported ATM b/c Java API Library doesn't support)
+  * ACH (not supported ATM b/c Java API Library doesn't support bank details)
   * Alipay
   * Boleto
   * Card
@@ -33,12 +33,12 @@ The Gradle build will install the following files from maven central
 * Adyen Java API Library v5.0.0
 
 
-## Installation - TODO
+## Installation
 
 1. Clone this repo
 2. Make sure you have Java 1.8 and Gradle installed on your machine
  
-## Usage - TODO
+## Usage
 
 1. Update the config file `config.ini` with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Origin Key](https://docs.adyen.com/user-management/how-to-get-an-origin-key), and merchant account name like below:
     ```
