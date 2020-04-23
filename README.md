@@ -22,10 +22,10 @@ This repository includes examples of PCI-compliant UI integrations for online pa
 ## Requirements
 
 * Java 1.8
-* Gradle
+* Network access to maven central
 
 ## Dependencies
-The Gradle build will install the following files from maven central
+The Gradle build will install the following jars from maven central
 * Java Spark v2.8.0
     * Simple Logging Facade (slf4j-simple v1.7.25)
     * Jinjava template v2.7.1
@@ -36,17 +36,17 @@ The Gradle build will install the following files from maven central
 ## Installation
 
 1. Clone this repo
-2. Make sure you have Java 1.8 and Gradle installed on your machine
+2. Make sure you have Java installed
  
 ## Usage
 
-1. Update the config file `config.ini` with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Origin Key](https://docs.adyen.com/user-management/how-to-get-an-origin-key), and merchant account name like below:
+1. Update the config file `config.properties` with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Origin Key](https://docs.adyen.com/user-management/how-to-get-an-origin-key), and merchant account name like below:
     ```
     merchant_account = TestMerchantAccount
     checkout_apikey = SampleAPIKey
     origin_key = SampleOriginKey
     ```
-3. Run `gradle run`
+3. Run `./gradlew run`
 3. Visit [http://localhost:8080](http://localhost:8080) and select an integration type!
 
 ## Contributing

@@ -3,12 +3,8 @@
 
 .DS_Store
 
-gradle/
 build/
 bin/
 gen/
 
 *.class
-
-gradlew
-gradlew.bat
