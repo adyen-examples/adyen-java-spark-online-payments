@@ -8,7 +8,6 @@ This repository includes examples of PCI-compliant UI integrations for online pa
 
 * [Drop-in](https://docs.adyen.com/checkout/drop-in-web)
 * [Component](https://docs.adyen.com/checkout/components-web)
-  * ACH (not supported ATM b/c Java API Library doesn't support bank details)
   * Alipay
   * Boleto
   * Card
