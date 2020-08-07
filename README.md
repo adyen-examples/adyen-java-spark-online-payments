@@ -16,7 +16,7 @@ This repository includes examples of PCI-compliant UI integrations for online pa
   * iDEAL
   * Klarna
   * Sofort
-  
+
 
 ## Requirements
 
@@ -36,14 +36,14 @@ The Gradle build will install the following jars from maven central
 
 1. Clone this repo
 2. Make sure you have Java installed
- 
+
 ## Usage
 
 1. Update the config file `config.properties` with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Origin Key](https://docs.adyen.com/user-management/how-to-get-an-origin-key), and merchant account name like below:
     ```
-    merchant_account = TestMerchantAccount
-    checkout_apikey = SampleAPIKey
-    origin_key = SampleOriginKey
+    merchantAccount = TestMerchantAccount
+    apiKey = SampleAPIKey
+    originKey = SampleOriginKey
     ```
 3. Run `./gradlew run`
 3. Visit [http://localhost:8080](http://localhost:8080) and select an integration type!
