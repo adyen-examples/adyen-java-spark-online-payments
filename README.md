@@ -39,11 +39,11 @@ The Gradle build will install the following jars from maven central
 
 ## Usage
 
-1. Update the config file `config.properties` with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Origin Key](https://docs.adyen.com/user-management/how-to-get-an-origin-key), and merchant account name like below:
+1. Update the config file `config.properties` with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Client Key](https://docs.adyen.com/user-management/client-side-authentication), and merchant account name like below:
     ```
-    merchantAccount = TestMerchantAccount
-    apiKey = SampleAPIKey
-    originKey = SampleOriginKey
+    merchantAccount = YourTestMerchantAccount
+    apiKey = YourAPIKey
+    clientKey = YourClientKey
     ```
 3. Run `./gradlew run`
 3. Visit [http://localhost:8080](http://localhost:8080) and select an integration type!

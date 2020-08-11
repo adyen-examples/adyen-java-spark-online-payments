@@ -29,7 +29,7 @@ public class Main {
 
 	public static String merchantAccount = "";
 	public static String apiKey = "";
-	public static String originKey = "";
+	public static String clientKey = "";
 	public static String paymentMethodsUrl = "";
 	public static String paymentsUrl = "";
 	public static String paymentsDetailsUrl = "";
@@ -59,7 +59,7 @@ public class Main {
 
 			Map<String, Object> context = new HashMap<>();
 			context.put("paymentMethods", PaymentMethods.getPaymentMethods(integrationType));
-			context.put("originKey", originKey);
+			context.put("clientKey", clientKey);
 			context.put("integrationType", integrationType);
 
 			return RenderUtil.render(context, "templates/component.html");
@@ -211,7 +211,7 @@ public class Main {
 
 		merchantAccount = prop.getProperty("merchantAccount");
 		apiKey = prop.getProperty("apiKey");
-		originKey = prop.getProperty("originKey");
+		clientKey = prop.getProperty("clientKey");
 		paymentMethodsUrl = prop.getProperty("paymentMethodsUrl");
 		paymentsUrl = prop.getProperty("paymentsUrl");
 		paymentsDetailsUrl = prop.getProperty("paymentsDetailsUrl");

@@ -93,7 +93,7 @@ const onError = (error) => {
 const createAdyenCheckout = () => {
 
     const paymentMethods = JSON.parse(document.getElementById('payment-methods').innerHTML);
-    const originKey = document.getElementById('origin-key').innerHTML;
+    const clientKey = document.getElementById('client-key').innerHTML;
 
     // Placeholder values
     const translations = {
@@ -152,7 +152,7 @@ const createAdyenCheckout = () => {
         showPayButton: true,
         locale: "en_US",
         environment: "test",
-        originKey: originKey,
+        clientKey: clientKey,
         paymentMethodsResponse: paymentMethods,
         translations: translations,
         onSubmit: onSubmit,
