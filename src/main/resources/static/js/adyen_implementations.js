@@ -93,6 +93,19 @@ const onError = (error) => {
 const createAdyenCheckout = () => {
 
     const paymentMethods = JSON.parse(document.getElementById('payment-methods').innerHTML);
+    paymentMethods.paymentMethods = paymentMethods.paymentMethods.filter((it) =>
+        [
+            "scheme",
+            "ideal",
+            "klarna",
+            "directEbanking",
+            "alipay",
+            "boletobancario",
+            "sepadirectdebit",
+            "dotpay",
+            "giropay",
+        ].includes(it.type)
+    );
     const clientKey = document.getElementById('client-key').innerHTML;
 
     // Placeholder values
