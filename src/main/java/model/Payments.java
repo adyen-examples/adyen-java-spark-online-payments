@@ -1,11 +1,10 @@
 package model;
 
 import com.adyen.Client;
+import com.adyen.Config;
 import com.adyen.enums.Environment;
 import com.adyen.model.Amount;
-import com.adyen.model.checkout.LineItem;
-import com.adyen.model.checkout.PaymentsRequest;
-import com.adyen.model.checkout.PaymentsResponse;
+import com.adyen.model.checkout.*;
 import com.adyen.service.Checkout;
 import com.adyen.service.exception.ApiException;
 import com.google.gson.Gson;
@@ -16,6 +15,7 @@ import controller.Main;
 import java.io.IOException;
 
 public class Payments {
+
 
 	public static String makePayment(PaymentsRequest paymentsRequest) {
 		Client client = new Client(Main.apiKey, Environment.TEST);
