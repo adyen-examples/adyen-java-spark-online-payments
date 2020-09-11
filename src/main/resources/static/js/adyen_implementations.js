@@ -94,6 +94,19 @@ const createAdyenCheckout = () => {
     // Get /paymentMethods call and clientKey response Jinja2 passed back to <script> tag
     const paymentMethods = JSON.parse(document.getElementById('payment-methods').innerHTML);
     const clientKey = JSON.parse(document.getElementById('client-key').innerHTML);
+    paymentMethods.paymentMethods = paymentMethods.paymentMethods.filter((it) =>
+        [
+            "scheme",
+            "ideal",
+            "klarna",
+            "directEbanking",
+            "alipay",
+            "boletobancario",
+            "sepadirectdebit",
+            "dotpay",
+            "giropay",
+        ].includes(it.type)
+    );
 
     // Docs for custom styling of dropin - https://docs.adyen.com/checkout/drop-in-web/customization
     // Docs for configuration changes to components (configurations are payment method specific) E.g. Cards - https://docs.adyen.com/payment-methods/cards/web-component#show-the-available-cards-in-your-payment-form
