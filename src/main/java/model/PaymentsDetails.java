@@ -11,7 +11,6 @@ import com.google.gson.GsonBuilder;
 import controller.Main;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 public class PaymentsDetails {
 

@@ -10,7 +10,6 @@ const structureRequest = (data) => {
         paymentRequest['browserInfo'] = data.browserInfo;
     }
 
-    console.log(paymentRequest);
     return paymentRequest;
 };
 
@@ -19,7 +18,7 @@ const handleFinalState = (resultCode) => {
     if (resultCode === 'Authorised') {
         window.location.href = "http://localhost:8080/success";
 
-    } else if (resultCode === 'Pending') {
+    } else if (resultCode === 'Pending' || resultCode === 'Received') {
         window.location.href = "http://localhost:8080/pending";
 
     } else if (resultCode === 'Error') {
@@ -63,7 +62,7 @@ const onSubmit = (state, component) => {
 };
 
 const onAdditionalDetails = (state, component) => {
-    console.log("On additionalDetails triggered");
+    console.log("OnAdditionalDetails triggered");
     fetch(`/api/submitAdditionalDetails`, {
         method: 'POST',
         headers: {
@@ -80,7 +79,8 @@ const onAdditionalDetails = (state, component) => {
             }
         })
         .catch(error => {
-            throw Error(error);
+            console.log(error);
+            window.location.href = "http://localhost:8080/failed";
         });
 };
 
@@ -91,8 +91,9 @@ const onError = (error) => {
 
 // Create Adyen checkout instance and initilize component
 const createAdyenCheckout = () => {
-
+    // Get /paymentMethods call and clientKey response Jinja2 passed back to <script> tag
     const paymentMethods = JSON.parse(document.getElementById('payment-methods').innerHTML);
+    const clientKey = document.getElementById('client-key').innerHTML;
     paymentMethods.paymentMethods = paymentMethods.paymentMethods.filter((it) =>
         [
             "scheme",
@@ -106,57 +107,27 @@ const createAdyenCheckout = () => {
             "giropay",
         ].includes(it.type)
     );
-    const clientKey = document.getElementById('client-key').innerHTML;
 
-    // Placeholder values
-    const translations = {
-        // "en-US": {
-        //     "creditCard.numberField.title": "Custom Card Name",
-        // }
-    };
-
+    // Docs for custom styling of dropin - https://docs.adyen.com/checkout/drop-in-web/customization
+    // Docs for configuration changes to components (configurations are payment method specific) E.g. Cards - https://docs.adyen.com/payment-methods/cards/web-component#show-the-available-cards-in-your-payment-form
     const paymentMethodsConfiguration = {
-        // applepay: { // Example required configuration for Apple Pay
-        //     configuration: {
-        //         merchantName: 'Adyen Test merchant', // Name to be displayed on the form
-        //         merchantIdentifier: 'adyen.test.merchant' // Your Apple merchant identifier as described in https://developer.apple.com/documentation/apple_pay_on_the_web/applepayrequest/2951611-merchantidentifier
-        //     },
-        //     onValidateMerchant: (resolve, reject, validationURL) => {
-        //         // Call the validation endpoint with validationURL.
-        //         // Call resolve(MERCHANTSESSION) or reject() to complete merchant validation.
-        //     }
-        // },
-        // paywithgoogle: { // Example required configuration for Google Pay
-        //     environment: "TEST", // Change this to PRODUCTION when you're ready to accept live Google Pay payments
-        //     configuration: {
-        //         gatewayMerchantId: "TylerDouglas", // Your Adyen merchant or company account name. Remove this field in TEST.
-        //         merchantIdentifier: "12345678910111213141" // Required for PRODUCTION. Remove this field in TEST. Your Google Merchant ID as described in https://developers.google.com/pay/api/web/guides/test-and-deploy/deploy-production-environment#obtain-your-merchantID
-        //     }
-        // },
-        card: { // Example optional configuration for Cards
-            // hideCVC: false, // Change this to true to hide the CVC field for stored cards. false is default
-            // placeholders: { # Change placeholder text for the following fields
-            // encryptedCardNumber: "",
-            // encryptedSecurityCode: ""
-            // },
-            // billingAddressRequired: true,
-//            hasHolderName: true,
-//            holderNameRequired: true,
+        card: {
+            hasHolderName: true,
+            holderNameRequired: true,
             enableStoreDetails: true,
-            name: 'Credit or debit card'
         },
-        ach: { // Default ACH user information
+        ach: {
             holderName: 'Ach User',
-            data: {
-                billingAddress: {
-                    street: 'Infinite Loop',
-                    postalCode: '95014',
-                    city: 'Cupertino',
-                    houseNumberOrName: '1',
-                    country: 'US',
-                    stateOrProvince: 'CA'
-                }
-            }
+            billingAddressRequired: false
+        },
+        paypal: {
+            amount: {
+                currency: "USD",
+                value: 1000
+            },
+            environment: "test", // Change this to "live" when you're ready to accept live PayPal payments
+            countryCode: "US", // Only needed for test. This will be automatically retrieved when you are in production.
+            intent: "authorize", // Change this to "authorize" if the payments should not be captured immediately. Contact Support to enable this flow.
         }
     };
 
@@ -167,7 +138,6 @@ const createAdyenCheckout = () => {
         environment: "test",
         clientKey: clientKey,
         paymentMethodsResponse: paymentMethods,
-        translations: translations,
         onSubmit: onSubmit,
         onAdditionalDetails: onAdditionalDetails,
         onError: onError
@@ -176,10 +146,16 @@ const createAdyenCheckout = () => {
 };
 const integrationType = document.getElementById('integration-type').innerHTML;
 
-// Adjust style for Dropin
+// Adjust style for Specific Components
 if (integrationType === 'dropin') {
     document.getElementById('component').style.padding = '0em';
-    document.getElementsByClassName('checkout-component')[0].style.border = 'none';
+    let container = document.getElementsByClassName('checkout-component')[0];
+    container.style.border = 'none';
+    container.style.padding = '0';
+} else if (integrationType === 'paypal') {
+    let el = document.querySelector('.payment');
+    el.style.display = 'flex';
+    el.style.justifyContent = 'center';
 }
 
 const checkout = createAdyenCheckout();

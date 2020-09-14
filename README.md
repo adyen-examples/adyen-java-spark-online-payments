@@ -2,6 +2,8 @@
 
 This repository includes examples of PCI-compliant UI integrations for online payments with Adyen. Within this demo app, we've created a simplified version of an e-commerce website, complete with commented code to highlight key features and concepts of Adyen's API. Check out the underlying code to see how you can integrate Adyen to give your shoppers the option to pay with their preferred payment methods, all in a seamless checkout experience.
 
+![Card Checkout Demo](src/main/resources/static/img/MyDemo.gif)
+
 ## Integrations
 
 **Java with Spark Java** demos of the following client-side integrations are available in this repository:
@@ -25,11 +27,11 @@ This repository includes examples of PCI-compliant UI integrations for online pa
 
 ## Dependencies
 The Gradle build will install the following jars from maven central
-* Java Spark v2.8.0
+* Java Spark v2.9.1
     * Simple Logging Facade (slf4j-simple v1.7.25)
     * Jinjava template v2.7.1
 * org.apache.http URLEncodedUtils v4.5.11
-* Adyen Java API Library v5.0.0
+* Adyen Java API Library v8.2.0
 
 
 ## Installation

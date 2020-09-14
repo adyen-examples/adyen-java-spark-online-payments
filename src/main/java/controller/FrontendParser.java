@@ -1,8 +1,12 @@
 package controller;
 
 import com.adyen.model.checkout.*;
+import com.adyen.model.checkout.details.AchDetails;
+import com.adyen.model.checkout.details.PayPalDetails;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import model.AchDetailsDeserializer;
+import model.PayPalDetailsDeserializer;
 import model.PaymentMethodDetailsDeserializer;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
@@ -17,7 +21,14 @@ public class FrontendParser {
 	public static PaymentsRequest parsePayment(String body) {
 
 		GsonBuilder builder = new GsonBuilder();
-		builder.registerTypeAdapter(PaymentMethodDetails.class, new PaymentMethodDetailsDeserializer());
+		if (body.contains("paypal")) {
+			// String looks like {"paymentMethod":{"type":"paypal","subtype":"sdk"}} -> Might need logic for iDeal, SEPA, ACH, Klarna, ACH?
+			builder.registerTypeAdapter(PaymentMethodDetails.class, new PayPalDetailsDeserializer());
+		} else if (body.contains("ach")) {
+			builder.registerTypeAdapter(PaymentMethodDetails.class, new AchDetailsDeserializer());
+		} else {
+			builder.registerTypeAdapter(PaymentMethodDetails.class, new PaymentMethodDetailsDeserializer());
+		}
 		Gson gson = builder.create();
 		PaymentsRequest paymentsRequest = gson.fromJson(body, PaymentsRequest.class);
 		return paymentsRequest;
