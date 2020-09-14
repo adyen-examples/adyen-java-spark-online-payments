@@ -93,7 +93,7 @@ const onError = (error) => {
 const createAdyenCheckout = () => {
     // Get /paymentMethods call and clientKey response Jinja2 passed back to <script> tag
     const paymentMethods = JSON.parse(document.getElementById('payment-methods').innerHTML);
-    const clientKey = JSON.parse(document.getElementById('client-key').innerHTML);
+    const clientKey = document.getElementById('client-key').innerHTML;
     paymentMethods.paymentMethods = paymentMethods.paymentMethods.filter((it) =>
         [
             "scheme",
@@ -144,7 +144,7 @@ const createAdyenCheckout = () => {
     };
     return new AdyenCheckout(configObj);
 };
-const integrationType = JSON.parse(document.getElementById('integration-type').innerHTML);
+const integrationType = document.getElementById('integration-type').innerHTML;
 
 // Adjust style for Specific Components
 if (integrationType === 'dropin') {

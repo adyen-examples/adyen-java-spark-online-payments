@@ -30,9 +30,6 @@ public class Main {
 	public static String merchantAccount = "";
 	public static String apiKey = "";
 	public static String clientKey = "";
-	public static String paymentMethodsUrl = "";
-	public static String paymentsUrl = "";
-	public static String paymentsDetailsUrl = "";
 
 	public static void main(String[] args) {
 		port(8080);
@@ -212,9 +209,5 @@ public class Main {
 		merchantAccount = prop.getProperty("merchantAccount");
 		apiKey = prop.getProperty("apiKey");
 		clientKey = prop.getProperty("clientKey");
-		paymentMethodsUrl = prop.getProperty("paymentMethodsUrl");
-		paymentsUrl = prop.getProperty("paymentsUrl");
-		paymentsDetailsUrl = prop.getProperty("paymentsDetailsUrl");
-
 	}
 }

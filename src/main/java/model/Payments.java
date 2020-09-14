@@ -53,7 +53,7 @@ public class Payments {
 			paymentsRequest.setOrigin("http://localhost:8080");
 			paymentsRequest.putAdditionalDataItem("allow3DS2", "true");
 
-		} else if (type.equals("ach")) {
+		} else if (type.equals("ach") || type.equals("paypal")) {
 			paymentsRequest.countryCode("US");
 		}
 
@@ -90,6 +90,7 @@ public class Payments {
 				currency = "BRL";
 				break;
 			case "ach":
+			case "paypal":
 				currency = "USD";
 				break;
 			default:
