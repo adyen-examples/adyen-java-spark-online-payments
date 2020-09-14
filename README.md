@@ -27,11 +27,11 @@ This repository includes examples of PCI-compliant UI integrations for online pa
 
 ## Dependencies
 The Gradle build will install the following jars from maven central
-* Java Spark v2.8.0
+* Java Spark v2.9.1
     * Simple Logging Facade (slf4j-simple v1.7.25)
     * Jinjava template v2.7.1
 * org.apache.http URLEncodedUtils v4.5.11
-* Adyen Java API Library v5.0.0
+* Adyen Java API Library v8.2.0
 
 
 ## Installation
