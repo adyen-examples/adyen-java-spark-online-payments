@@ -19,6 +19,7 @@ This repository includes examples of PCI-compliant UI integrations for online pa
   * iDEAL
   * Klarna
   * PayPal
+  * SEPA Direct Debit
   * Sofort
 
 
