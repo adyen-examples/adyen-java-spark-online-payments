@@ -134,36 +134,38 @@ public class Main {
 
 				switch (result) {
 					case AUTHORISED:
-						res.redirect("/success");
+						res.redirect("/result/success");
 						break;
 					case RECEIVED: case PENDING:
-						res.redirect("/pending");
+						res.redirect("/result/pending");
 						break;
 					default:
-						res.redirect("/failed");
+						res.redirect("/result/failed");
 				}
 				return res;
 			}
 		});
 
-		get("/success", (req, res) -> {
-			Map<String, Object> context = new HashMap<>();
-			return RenderUtil.render(context, "templates/checkout-success.html");
-		});
+		path("/result", () -> {
+			get("/success", (req, res) -> {
+				Map<String, Object> context = new HashMap<>();
+				return RenderUtil.render(context, "templates/checkout-success.html");
+			});
 
-		get("/failed", (req, res) -> {
-			Map<String, Object> context = new HashMap<>();
-			return RenderUtil.render(context, "templates/checkout-failed.html");
-		});
+			get("/failed", (req, res) -> {
+				Map<String, Object> context = new HashMap<>();
+				return RenderUtil.render(context, "templates/checkout-failed.html");
+			});
 
-		get("/pending", (req, res) -> {
-			Map<String, Object> context = new HashMap<>();
-			return RenderUtil.render(context, "templates/checkout-success.html");
-		});
+			get("/pending", (req, res) -> {
+				Map<String, Object> context = new HashMap<>();
+				return RenderUtil.render(context, "templates/checkout-success.html");
+			});
 
-		get("/error", (req, res) -> {
-			Map<String, Object> context = new HashMap<>();
-			return RenderUtil.render(context, "templates/checkout-failed.html");
+			get("/error", (req, res) -> {
+				Map<String, Object> context = new HashMap<>();
+				return RenderUtil.render(context, "templates/checkout-failed.html");
+			});
 		});
 
 		get("/favicon.ico", (req, res) -> {

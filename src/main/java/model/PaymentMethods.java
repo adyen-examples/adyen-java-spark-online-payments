@@ -22,15 +22,8 @@ public class PaymentMethods {
 		PaymentMethodsRequest paymentMethodsRequest = new PaymentMethodsRequest();
 		paymentMethodsRequest.setMerchantAccount(Main.merchantAccount);
 
-		Amount amount = new Amount();
-		if (type.equals("dotpay")) {
-			amount.setCurrency("PLN");
-		} else {
-			amount.setCurrency("EUR");
-		}
-		amount.setValue(1000L);
-		paymentMethodsRequest.setAmount(amount);
 		paymentMethodsRequest.setChannel(PaymentMethodsRequest.ChannelEnum.WEB);
+		paymentMethodsRequest.setShopperReference("SparkJava Checkout Shopper");
 		System.out.println("/paymentMethods context:\n" + paymentMethodsRequest.toString());
 
 		try {
