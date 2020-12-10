@@ -128,7 +128,6 @@ public class Main {
 
 			setRedirect(result, res);
 			return res;
-
 		});
 
 
