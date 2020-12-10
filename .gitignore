@@ -1,6 +1,7 @@
 .gradle/
 .idea/
 local.properties
+config.properties
 
 *.DS_Store
 
