@@ -13,6 +13,9 @@ import controller.FrontendParser;
 import controller.Main;
 
 import java.io.IOException;
+import java.util.UUID;
+
+import static controller.Main.paymentDataStore;
 
 public class Payments {
 
@@ -26,9 +29,11 @@ public class Payments {
 		setAmount(paymentsRequest, type);
 		paymentsRequest.setChannel(PaymentsRequest.ChannelEnum.WEB);
 		paymentsRequest.setMerchantAccount(Main.merchantAccount);
-		paymentsRequest.setReturnUrl("http://localhost:8080/api/handleShopperRedirect");
 
-		paymentsRequest.setReference("Java Integration Test Reference");
+		String orderRef = UUID.randomUUID().toString();
+		paymentsRequest.setReference(orderRef);
+		paymentsRequest.setReturnUrl("http://localhost:8080/api/handleShopperRedirect?orderRef=" + orderRef);
+
 		paymentsRequest.setShopperReference("Java Checkout Shopper");
 
 		paymentsRequest.setCountryCode("NL");
@@ -62,6 +67,11 @@ public class Payments {
 		try {
 			PaymentsResponse response = checkout.payments(paymentsRequest);
 			PaymentsResponse formattedResponse = FrontendParser.formatResponseForFrontend(response);
+
+			if (response.getAction() != null && !response.getAction().getPaymentData().isEmpty()) {
+				// Set paymentData in local store for /details call after redirect
+				paymentDataStore.put(orderRef, response.getAction().getPaymentData());
+			}
 
 			GsonBuilder builder = new GsonBuilder();
 			Gson gson = builder.create();

@@ -18,8 +18,13 @@ import model.PaymentMethods;
 import model.Payments;
 import model.PaymentsDetails;
 
+import static com.adyen.model.PaymentResult.ResultCodeEnum.*;
+import static com.adyen.model.PaymentResult.ResultCodeEnum.PENDING;
 import static spark.Spark.*;
+
 import spark.Response;
+
+import javax.xml.ws.ResponseWrapper;
 
 
 public class Main {
@@ -30,6 +35,8 @@ public class Main {
 	public static String merchantAccount = "";
 	public static String apiKey = "";
 	public static String clientKey = "";
+
+	public static final HashMap<String, String> paymentDataStore = new HashMap<>();
 
 	public static void main(String[] args) {
 		port(8080);
@@ -86,65 +93,44 @@ public class Main {
 		get("/api/handleShopperRedirect", (req, res) -> {
 			System.out.println("GET redirect handler");
 
+			PaymentsDetailsRequest detailsRequest = new PaymentsDetailsRequest();
 			QueryParamsMap queryMap = req.queryMap();
-			String key = "";
-			String value = "";
 
 			if (queryMap.hasKey("redirectResult")) {
-				key =  "redirectResult";
-				value = queryMap.value("redirectResult");
+				detailsRequest.setDetails(Collections.singletonMap("redirectResult", queryMap.value("redirectResult")));
 
 			} else if (queryMap.hasKey("payload")) {
-				key = "payload";
-				value = queryMap.value("payload");
+				detailsRequest.setDetails(Collections.singletonMap("payload", queryMap.value("payload")));
 			}
+			detailsRequest.setPaymentData(paymentDataStore.get(queryMap.value("orderRef")));
 
-			Map<String, Object> context = new HashMap<>();
-			String valuesArray = "{\n" +
-					"\"" + key + "\": \"" + value + "\"" +
-					"}";
-			context.put("valuesArray", valuesArray);
+			PaymentsResponse response = PaymentsDetails.getPaymentsDetailsObject(detailsRequest);
+			PaymentsResponse.ResultCodeEnum result = response.getResultCode();
 
-			return RenderUtil.render(context, "templates/fetch-payment-data.html"); // Get paymentData from localStorage
+			setRedirect(result, res);
+			return res;
 		});
+
 
 		post("/api/handleShopperRedirect", (req, res) -> {
 			System.out.println("POST redirect handler");
+			QueryParamsMap queryMap = req.queryMap();
 
-			// Triggers when POST contains query params. Triggers on call back from issuer after 3DS2 challenge w/ MD & PaRes
-			if (!req.body().contains("paymentData")) {
-				List<NameValuePair> params = FrontendParser.parseQueryParams(req.body());
-				String md = params.get(0).getValue();
-				String paRes = params.get(1).getValue();
+			PaymentsDetailsRequest detailsRequest = new PaymentsDetailsRequest();
+			HashMap<String, String> details = new HashMap<>();
+			details.put("MD", queryMap.value("MD"));
+			details.put("PaRes", queryMap.value("PaRes"));
+			detailsRequest.setDetails(details);
+			detailsRequest.setPaymentData(paymentDataStore.get(queryMap.value("orderRef")));
 
-				Map<String, Object> context = new HashMap<>();
-				String valuesArray = "{\n" +
-						"\"MD\": \"" + md + "\",\n" +
-						"\"PaRes\": \"" + paRes + "\"\n" +
-						"}";
-				context.put("valuesArray", valuesArray);
+			PaymentsResponse response = PaymentsDetails.getPaymentsDetailsObject(detailsRequest);
+			PaymentsResponse.ResultCodeEnum result = response.getResultCode();
 
-				return RenderUtil.render(context, "templates/fetch-payment-data.html"); // Get paymentData from localStorage
+			setRedirect(result, res);
+			return res;
 
-			} else {
-				PaymentsDetailsRequest pdr = FrontendParser.parseDetails(req.body());
-
-				PaymentsResponse paymentResult = PaymentsDetails.getPaymentsDetailsObject(pdr);
-				PaymentsResponse.ResultCodeEnum result = paymentResult.getResultCode();
-
-				switch (result) {
-					case AUTHORISED:
-						res.redirect("/result/success");
-						break;
-					case RECEIVED: case PENDING:
-						res.redirect("/result/pending");
-						break;
-					default:
-						res.redirect("/result/failed");
-				}
-				return res;
-			}
 		});
+
 
 		path("/result", () -> {
 			get("/success", (req, res) -> {
@@ -171,6 +157,20 @@ public class Main {
 		get("/favicon.ico", (req, res) -> {
 			return getFavicon(res);
 		});
+	}
+
+	private static void setRedirect(PaymentsResponse.ResultCodeEnum result, Response res) {
+		switch (result) {
+			case AUTHORISED:
+				res.redirect("/result/success");
+				break;
+			case RECEIVED:
+			case PENDING:
+				res.redirect("/result/pending");
+				break;
+			default:
+				res.redirect("/result/failed");
+		}
 	}
 
 	private static Object getFavicon(Response res) {
