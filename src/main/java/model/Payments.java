@@ -1,19 +1,20 @@
 package model;
 
+import java.io.IOException;
+import java.util.UUID;
 import com.adyen.Client;
-import com.adyen.Config;
 import com.adyen.enums.Environment;
 import com.adyen.model.Amount;
-import com.adyen.model.checkout.*;
+import com.adyen.model.checkout.LineItem;
+import com.adyen.model.checkout.PaymentsRequest;
+import com.adyen.model.checkout.PaymentsResponse;
 import com.adyen.service.Checkout;
 import com.adyen.service.exception.ApiException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import controller.FrontendParser;
 import controller.Main;
-
-import java.io.IOException;
-import java.util.UUID;
 
 import static controller.Main.paymentDataStore;
 
@@ -57,6 +58,7 @@ public class Payments {
 		} else if (type.equals("scheme")) {
 			paymentsRequest.setOrigin("http://localhost:8080");
 			paymentsRequest.putAdditionalDataItem("allow3DS2", "true");
+			paymentsRequest.setShopperIP("0.0.0.1");
 
 		} else if (type.equals("ach") || type.equals("paypal")) {
 			paymentsRequest.countryCode("US");

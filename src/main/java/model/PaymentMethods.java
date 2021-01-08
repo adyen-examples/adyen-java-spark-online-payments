@@ -1,39 +1,38 @@
 package model;
 
+import java.io.IOException;
 import com.adyen.Client;
 import com.adyen.enums.Environment;
-import com.adyen.model.Amount;
 import com.adyen.model.checkout.PaymentMethodsRequest;
 import com.adyen.model.checkout.PaymentMethodsResponse;
 import com.adyen.service.Checkout;
 import com.adyen.service.exception.ApiException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import controller.Main;
 
-import java.io.IOException;
+import controller.Main;
 
 public class PaymentMethods {
 
-	public static String getPaymentMethods(String type) {
-		Client client = new Client(Main.apiKey, Environment.TEST);
-		Checkout checkout = new Checkout(client);
+    public static String getPaymentMethods(String type) {
+        Client client = new Client(Main.apiKey, Environment.TEST);
+        Checkout checkout = new Checkout(client);
 
-		PaymentMethodsRequest paymentMethodsRequest = new PaymentMethodsRequest();
-		paymentMethodsRequest.setMerchantAccount(Main.merchantAccount);
+        PaymentMethodsRequest paymentMethodsRequest = new PaymentMethodsRequest();
+        paymentMethodsRequest.setMerchantAccount(Main.merchantAccount);
 
-		paymentMethodsRequest.setChannel(PaymentMethodsRequest.ChannelEnum.WEB);
-		paymentMethodsRequest.setShopperReference("SparkJava Checkout Shopper");
-		System.out.println("/paymentMethods context:\n" + paymentMethodsRequest.toString());
+        paymentMethodsRequest.setChannel(PaymentMethodsRequest.ChannelEnum.WEB);
+        paymentMethodsRequest.setShopperReference("SparkJava Checkout Shopper");
+        System.out.println("/paymentMethods context:\n" + paymentMethodsRequest.toString());
 
-		try {
-			PaymentMethodsResponse response = checkout.paymentMethods(paymentMethodsRequest);
-			Gson gson = new GsonBuilder().create();
-			String paymentMethodsResponseStringified = gson.toJson(response);
-			System.out.println("/paymentMethods response:\n" + paymentMethodsResponseStringified);
-			return paymentMethodsResponseStringified;
-		} catch (ApiException | IOException e) {
-			return e.toString();
-		}
-	}
+        try {
+            PaymentMethodsResponse response = checkout.paymentMethods(paymentMethodsRequest);
+            Gson gson = new GsonBuilder().create();
+            String paymentMethodsResponseStringified = gson.toJson(response);
+            System.out.println("/paymentMethods response:\n" + paymentMethodsResponseStringified);
+            return paymentMethodsResponseStringified;
+        } catch (ApiException | IOException e) {
+            return e.toString();
+        }
+    }
 }
