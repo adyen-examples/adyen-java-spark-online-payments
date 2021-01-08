@@ -8,9 +8,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
+import com.adyen.Client;
+import com.adyen.enums.Environment;
+import com.adyen.model.checkout.PaymentMethodsResponse;
 import com.adyen.model.checkout.PaymentsDetailsRequest;
 import com.adyen.model.checkout.PaymentsRequest;
 import com.adyen.model.checkout.PaymentsResponse;
+import com.adyen.service.Checkout;
+import com.google.gson.Gson;
 
 import model.PaymentMethods;
 import model.Payments;
@@ -30,18 +35,20 @@ public class Main {
 
     private static final File FAVICON_PATH = new File("src/main/resources/static/img/favicon.ico");
     private static final String configFile = "config.properties";
+    private static final Gson gson = new Gson();
+
+    private static String apiKey = "";
+    private static String clientKey = "";
 
     public static String merchantAccount = "";
-    public static String apiKey = "";
-    public static String clientKey = "";
-
-    public static final Map<String, String> paymentDataStore = new HashMap<>();
+    public static Checkout checkout;
+    public static Map<String, String> paymentDataStore = new HashMap<>();
 
     public static void main(String[] args) {
         port(8080);
         staticFiles.location("/static");
         readConfigFile();
-
+        checkout = new Checkout(new Client(apiKey, Environment.TEST));
         // Routes
         get("/", (req, res) -> {
             Map<String, Object> context = new HashMap<>();
@@ -67,17 +74,23 @@ public class Main {
             return RenderUtil.render(context, "templates/component.html");
         });
 
-        post("/api/getPaymentMethods", (req, res) -> PaymentMethods.getPaymentMethods(""));
+        post("/api/getPaymentMethods", (req, res) -> {
+            PaymentMethodsResponse response = PaymentMethods.getPaymentMethods("");
+            return gson.toJson(response);
+        });
 
         post("/api/initiatePayment", (req, res) -> {
             System.out.println("Response received from client:\n" + req.body());
-            PaymentsRequest request = FrontendParser.parsePayment(req.body());
-            return Payments.makePayment(request);
+            PaymentsRequest request = gson.fromJson(req.body(), PaymentsRequest.class);
+            PaymentsResponse response = Payments.makePayment(request);
+            return gson.toJson(response);
+
         });
 
         post("/api/submitAdditionalDetails", (req, res) -> {
-            PaymentsDetailsRequest details = FrontendParser.parseDetails(req.body());
-            return PaymentsDetails.getPaymentsDetails(details);
+            PaymentsDetailsRequest details = gson.fromJson(req.body(), PaymentsDetailsRequest.class);
+            PaymentsResponse paymentsDetails = PaymentsDetails.getPaymentsDetails(details);
+            return gson.toJson(paymentsDetails);
         });
 
         get("/api/handleShopperRedirect", (req, res) -> {
@@ -94,7 +107,7 @@ public class Main {
             }
             detailsRequest.setPaymentData(paymentDataStore.get(queryMap.value("orderRef")));
 
-            PaymentsResponse response = PaymentsDetails.getPaymentsDetailsObject(detailsRequest);
+            PaymentsResponse response = PaymentsDetails.getPaymentsDetails(detailsRequest);
             PaymentsResponse.ResultCodeEnum result = response.getResultCode();
 
             setRedirect(result, res);
@@ -113,7 +126,7 @@ public class Main {
             detailsRequest.setDetails(details);
             detailsRequest.setPaymentData(paymentDataStore.get(queryMap.value("orderRef")));
 
-            PaymentsResponse response = PaymentsDetails.getPaymentsDetailsObject(detailsRequest);
+            PaymentsResponse response = PaymentsDetails.getPaymentsDetails(detailsRequest);
             PaymentsResponse.ResultCodeEnum result = response.getResultCode();
 
             setRedirect(result, res);
