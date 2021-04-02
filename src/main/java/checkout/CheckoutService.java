@@ -1,25 +1,46 @@
-package model;
+package checkout;
 
 import java.io.IOException;
+import java.util.Properties;
 import java.util.UUID;
+import com.adyen.Client;
+import com.adyen.enums.Environment;
 import com.adyen.model.Amount;
-import com.adyen.model.checkout.LineItem;
-import com.adyen.model.checkout.PaymentsRequest;
-import com.adyen.model.checkout.PaymentsResponse;
+import com.adyen.model.checkout.*;
+import com.adyen.service.Checkout;
 import com.adyen.service.exception.ApiException;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import controller.FrontendParser;
-import controller.Main;
+public class CheckoutService {
 
-public class Payments {
-    public static PaymentsResponse makePayment(PaymentsRequest paymentsRequest) throws IOException, ApiException {
+    private final Checkout checkout;
+    private final String merchantAccount;
+
+    public CheckoutService(final Properties prop) {
+        merchantAccount = prop.getProperty("merchantAccount");
+        checkout = new Checkout(new Client(prop.getProperty("apiKey"), Environment.TEST));
+    }
+
+    public PaymentMethodsResponse getPaymentMethods() throws IOException, ApiException {
+        PaymentMethodsRequest paymentMethodsRequest = new PaymentMethodsRequest();
+        paymentMethodsRequest.setMerchantAccount(merchantAccount);
+
+        paymentMethodsRequest.setChannel(PaymentMethodsRequest.ChannelEnum.WEB);
+        paymentMethodsRequest.setShopperReference("SparkJava Checkout Shopper");
+        System.out.println("/paymentMethods context:\n" + paymentMethodsRequest.toString());
+
+        PaymentMethodsResponse response = checkout.paymentMethods(paymentMethodsRequest);
+        System.out.println("/paymentMethods response:\n" + response);
+        return response;
+    }
+
+    public PaymentsResponse makePayment(PaymentsRequest paymentsRequest) throws IOException, ApiException {
         String type = paymentsRequest.getPaymentMethod().getType();
 
-        setAmount(paymentsRequest, type);
+        paymentsRequest.setAmount(getAmount(type));
         paymentsRequest.setChannel(PaymentsRequest.ChannelEnum.WEB);
-        paymentsRequest.setMerchantAccount(Main.merchantAccount);
+        paymentsRequest.setMerchantAccount(merchantAccount);
 
         String orderRef = UUID.randomUUID().toString();
         paymentsRequest.setReference(orderRef);
@@ -56,21 +77,21 @@ public class Payments {
 
         System.out.println("/payments request:\n" + paymentsRequest.toString());
 
-        PaymentsResponse response = Main.checkout.payments(paymentsRequest);
-        PaymentsResponse formattedResponse = FrontendParser.formatResponseForFrontend(response);
+        PaymentsResponse response = checkout.payments(paymentsRequest);
 
-        if (response.getAction() != null && !response.getAction().getPaymentData().isEmpty()) {
-            // Set paymentData in local store for /details call after redirect
-            Main.paymentDataStore.put(orderRef, response.getAction().getPaymentData());
-        }
+        System.out.println("/payments response:\n" + response);
+        return response;
+    }
 
-        System.out.println("/payments response:\n" + formattedResponse);
-        return formattedResponse;
+    public PaymentsDetailsResponse submitPaymentsDetails(PaymentsDetailsRequest paymentsDetailsRequest) throws IOException, ApiException {
+        System.out.println("/paymentsDetails request:" + paymentsDetailsRequest.toString());
+        PaymentsDetailsResponse paymentsDetailsResponse = checkout.paymentsDetails(paymentsDetailsRequest);
+        System.out.println("paymentsDetails response:\n" + paymentsDetailsResponse.toString());
+        return paymentsDetailsResponse;
     }
 
 
-    private static void setAmount(PaymentsRequest paymentsRequest, String type) {
-        Amount amount = new Amount();
+    private Amount getAmount(String type) {
 
         String currency;
 
@@ -91,10 +112,11 @@ public class Payments {
             default:
                 currency = "EUR";
         }
+        Amount amount = new Amount();
 
         amount.setCurrency(currency);
         amount.setValue(1000L);
-        paymentsRequest.setAmount(amount);
+        return amount;
     }
 
     private static void addLineItems(PaymentsRequest paymentsRequest) {
