@@ -30,7 +30,9 @@ async function initCheckout() {
                     },
                     environment: "test", // Change this to "live" when you're ready to accept live PayPal payments
                     countryCode: "US", // Only needed for test. This will be automatically retrieved when you are in production.
-                    intent: "authorize", // Change this to "authorize" if the payments should not be captured immediately. Contact Support to enable this flow.
+                    onCancel: (data, component) => {
+                        component.setStatus('ready');
+                    },
                 }
             },
             onSubmit: (state, component) => {
