@@ -32,8 +32,6 @@ public class CheckoutService {
         checkoutSession.setReference(orderRef); // required
         checkoutSession.setReturnUrl("http://localhost:8080/redirect?orderRef=" + orderRef);
         checkoutSession.setAmount(amount);
-        CreateCheckoutSessionResponse response = checkout.sessions(checkoutSession);
-        System.out.println("/CheckoutSession response ID:\n" + response.getId());
-        return response;
+        return checkout.sessions(checkoutSession);
     }
 }
