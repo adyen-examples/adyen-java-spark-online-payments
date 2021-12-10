@@ -24,7 +24,7 @@ This repository includes examples of PCI-compliant UI integrations for online pa
 
 ## Requirements
 
-* Java 1.8 (or higher)
+* Java 11 (or higher)
 * Network access to maven central
 
 ## Dependencies

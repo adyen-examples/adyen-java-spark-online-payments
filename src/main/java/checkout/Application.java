@@ -84,7 +84,6 @@ public class Application {
             return RenderUtil.render(context, "templates/redirect.html");
         });
 
-        // APIs
         post("/api/sessions", (req, res) -> {
             CreateCheckoutSessionResponse response = checkoutService.checkoutsessions();
             return gson.toJson(response);
