@@ -10,3 +10,4 @@ gen/
 
 *.class
 .git
+config.properties

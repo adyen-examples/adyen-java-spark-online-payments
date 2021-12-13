@@ -43,7 +43,7 @@ The Gradle build will install the following jars from maven central
 
 ## Usage
 
-1. Update the config file `config.properties` with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Client Key](https://docs.adyen.com/user-management/client-side-authentication) - Remember to add `http://localhost:8080` as an origin for client key, and merchant account name like below:
+1. Copy the `config.properties.example` config file to `config.properties` with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Client Key](https://docs.adyen.com/user-management/client-side-authentication) - Remember to add `http://localhost:8080` as an origin for client key, and merchant account name like below:
     ```
     merchantAccount = YourTestMerchantAccount
     apiKey = YourAPIKey
