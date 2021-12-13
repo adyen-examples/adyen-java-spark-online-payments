@@ -1,125 +1,106 @@
-const clientKey = document.getElementById('client-key').innerHTML;
-const type = document.getElementById('integration-type').innerHTML;
+const clientKey = document.getElementById("client-key").innerHTML;
+// Used to finalize a checkout call in case of redirect
+const urlParams = new URLSearchParams(window.location.search);
+const sessionId = urlParams.get('sessionId'); // Unique identifier for the payment session
+const redirectResult = urlParams.get('redirectResult');
 
-async function initCheckout() {
-    try {
-        const paymentMethodsResponse = await callServer("/api/getPaymentMethods");
-        const configuration = {
-            paymentMethodsResponse: filterUnimplemented(paymentMethodsResponse),
-            clientKey,
-            locale: "en_US",
-            environment: "test",
-            showPayButton: true,
-            paymentMethodsConfiguration: {
-                ideal: {
-                    showImage: true,
-                },
-                card: {
-                    hasHolderName: true,
-                    holderNameRequired: true,
-                    name: "Credit or debit card",
-                    amount: {
-                        value: 1000,
-                        currency: "EUR",
-                    },
-                },
-                paypal: {
-                    amount: {
-                        currency: "USD",
-                        value: 1000
-                    },
-                    environment: "test", // Change this to "live" when you're ready to accept live PayPal payments
-                    countryCode: "US", // Only needed for test. This will be automatically retrieved when you are in production.
-                    onCancel: (data, component) => {
-                        component.setStatus('ready');
-                    },
-                }
-            },
-            onSubmit: (state, component) => {
-                if (state.isValid) {
-                    handleSubmission(state, component, "/api/initiatePayment");
-                }
-            },
-            onAdditionalDetails: (state, component) => {
-                handleSubmission(state, component, "/api/submitAdditionalDetails");
-            },
-        };
+// Typical checkout experience
+async function startCheckout() {
+  // Used in the demo to know which type of checkout was chosen
+  const type = document.getElementById("integration-type").innerHTML;
 
-        const checkout = new AdyenCheckout(configuration);
-        checkout.create(type).mount("#component");
-    } catch (error) {
-        console.error(error);
-        alert("Error occurred. Look at console for details");
-    }
+  try {
+    const checkoutSessionResponse = await callServer("/api/sessions?type=" + type);
+    const checkout = await createAdyenCheckout(checkoutSessionResponse);
+    checkout.create(type).mount(document.getElementById("component"));
+
+  } catch (error) {
+    console.error(error);
+    alert("Error occurred. Look at console for details");
+  }
 }
 
-function filterUnimplemented(pm) {
-    pm.paymentMethods = pm.paymentMethods.filter((it) =>
-        [
-            "scheme",
-            "ideal",
-            "dotpay",
-            "giropay",
-            // "sepadirectdebit",
-            "directEbanking",
-            "ach",
-            "alipay",
-            "klarna_paynow",
-            "klarna",
-            "klarna_account",
-            "paypal",
-            "boletobancario_santander",
-        ].includes(it.type)
-    );
-    return pm;
+// Some payment methods use redirects. This is where we finalize the operation
+async function finalizeCheckout() {
+  try {
+     const checkout = await createAdyenCheckout({id: sessionId});
+     checkout.submitDetails({details: {redirectResult}});
+  } catch (error) {
+     console.error(error);
+     alert("Error occurred. Look at console for details");
+  }
 }
 
-// Event handlers called when the shopper selects the pay button,
-// or when additional information is required to complete the payment
-async function handleSubmission(state, component, url) {
-    try {
-        const res = await callServer(url, state.data);
-        handleServerResponse(res, component);
-    } catch (error) {
-        console.error(error);
-        alert("Error occurred. Look at console for details");
-    }
+async function createAdyenCheckout(session){
+         return new AdyenCheckout(
+           {
+             clientKey,
+             locale: "en_US",
+             environment: "test",
+             session: session,
+             showPayButton: true,
+             paymentMethodsConfiguration: {
+               ideal: {
+                 showImage: true,
+               },
+               card: {
+                 hasHolderName: true,
+                 holderNameRequired: true,
+                 name: "Credit or debit card",
+                 amount: {
+                   value: 1000,
+                   currency: "EUR",
+                 },
+               },
+               paypal: {
+                 amount: {
+                   value: 1000,
+                   currency: "USD",
+                 },
+                 environment: "test", // Change this to "live" when you're ready to accept live PayPal payments
+                 countryCode: "US", // Only needed for test. This will be automatically retrieved when you are in production.
+               }
+             },
+             onPaymentCompleted: (result, component) => {
+                 console.info("onPaymentCompleted");
+                 console.info(result, component);
+                 handleServerResponse(result, component);
+             },
+             onError: (error, component) => {
+                 console.error("onError");
+                 console.error(error.name, error.message, error.stack, component);
+                 handleServerResponse(error, component);
+             },
+           }
+         );
 }
-
 // Calls your server endpoints
 async function callServer(url, data) {
-    const res = await fetch(url, {
-        method: "POST",
-        body: data ? JSON.stringify(data) : "",
-        headers: {
-            "Content-Type": "application/json",
-        },
-    });
-
-    return await res.json();
+  const res = await fetch(url, {
+    method: "POST",
+    body: data ? JSON.stringify(data) : "",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  return await res.json();
 }
-
 // Handles responses sent from your server to the client
-function handleServerResponse(res, component) {
-    if (res.action) {
-        component.handleAction(res.action);
-    } else {
-        switch (res.resultCode) {
-            case "Authorised":
-                window.location.href = "/result/success";
-                break;
-            case "Pending":
-            case "Received":
-                window.location.href = "/result/pending";
-                break;
-            case "Refused":
-                window.location.href = "/result/failed";
-                break;
-            default:
-                window.location.href = "/result/error";
-                break;
-        }
+function handleServerResponse(res, _component) {
+    switch (res.resultCode) {
+      case "Authorised":
+        window.location.href = "/result/success";
+        break;
+      case "Pending":
+      case "Received":
+        window.location.href = "/result/pending";
+        break;
+      case "Refused":
+        window.location.href = "/result/failed";
+        break;
+      default:
+        window.location.href = "/result/error";
+        break;
     }
 }
-
-initCheckout();
+if (!sessionId) { startCheckout() } else { finalizeCheckout(); }

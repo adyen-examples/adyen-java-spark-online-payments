@@ -1,7 +1,6 @@
 .gradle/
 .idea/
 local.properties
-config.properties
 
 *.DS_Store
 
@@ -11,3 +10,4 @@ gen/
 
 *.class
 .git
+config.properties

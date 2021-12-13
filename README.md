@@ -24,7 +24,7 @@ This repository includes examples of PCI-compliant UI integrations for online pa
 
 ## Requirements
 
-* Java 1.8
+* Java 11 (or higher)
 * Network access to maven central
 
 ## Dependencies
@@ -33,7 +33,7 @@ The Gradle build will install the following jars from maven central
     * Simple Logging Facade (slf4j-simple v1.7.25)
     * Jinjava template v2.7.1
 * org.apache.http URLEncodedUtils v4.5.11
-* Adyen Java API Library v8.2.0
+* Adyen Java API Library v17.2.0
 
 
 ## Installation
@@ -43,7 +43,7 @@ The Gradle build will install the following jars from maven central
 
 ## Usage
 
-1. Update the config file `config.properties` with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Client Key](https://docs.adyen.com/user-management/client-side-authentication) - Remember to add `http://localhost:8080` as an origin for client key, and merchant account name like below:
+1. Copy the `config.properties.example` config file to `config.properties` with your [API key](https://docs.adyen.com/user-management/how-to-get-the-api-key), [Client Key](https://docs.adyen.com/user-management/client-side-authentication) - Remember to add `http://localhost:8080` as an origin for client key, and merchant account name like below:
     ```
     merchantAccount = YourTestMerchantAccount
     apiKey = YourAPIKey

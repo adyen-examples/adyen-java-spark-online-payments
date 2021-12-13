@@ -3,15 +3,12 @@ package checkout;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import com.adyen.model.checkout.*;
 import com.google.gson.Gson;
 
-import spark.QueryParamsMap;
-import spark.Response;
 import view.RenderUtil;
 
 import static spark.Spark.get;
@@ -81,65 +78,21 @@ public class Application {
             });
         });
 
-        // APIs
+        get("/redirect", (req, res) -> {
+            Map<String, Object> context = new HashMap<>();
+            context.put("clientKey", clientKey);
+            return RenderUtil.render(context, "templates/redirect.html");
+        });
 
-        post("/api/getPaymentMethods", (req, res) -> {
-            PaymentMethodsResponse response = checkoutService.getPaymentMethods();
+        post("/api/sessions", (req, res) -> {
+            CreateCheckoutSessionResponse response = checkoutService.checkoutsessions();
             return gson.toJson(response);
-        });
-
-        post("/api/initiatePayment", (req, res) -> {
-            System.out.println("Response received from client:\n" + req.body());
-            PaymentsRequest request = gson.fromJson(req.body(), PaymentsRequest.class);
-            PaymentsResponse response = checkoutService.makePayment(request);
-            return gson.toJson(response);
-
-        });
-
-        post("/api/submitAdditionalDetails", (req, res) -> {
-            PaymentsDetailsRequest details = gson.fromJson(req.body(), PaymentsDetailsRequest.class);
-            PaymentsDetailsResponse paymentsDetails = checkoutService.submitPaymentsDetails(details);
-            return gson.toJson(paymentsDetails);
-        });
-
-        get("/api/handleShopperRedirect", (req, res) -> {
-            System.out.println("GET redirect handler");
-
-            PaymentsDetailsRequest detailsRequest = new PaymentsDetailsRequest();
-            QueryParamsMap queryMap = req.queryMap();
-
-            if (queryMap.hasKey("redirectResult")) {
-                detailsRequest.setDetails(Collections.singletonMap("redirectResult", queryMap.value("redirectResult")));
-
-            } else if (queryMap.hasKey("payload")) {
-                detailsRequest.setDetails(Collections.singletonMap("payload", queryMap.value("payload")));
-            }
-
-            PaymentsDetailsResponse response = checkoutService.submitPaymentsDetails(detailsRequest);
-            PaymentsResponse.ResultCodeEnum result = response.getResultCode();
-
-            setRedirect(result, res);
-            return res;
         });
 
         System.out.println("\n----------------------------------------------------------\n\t" +
             "Application is running! Access URLs:\n\t" +
             "Local: \t\thttp://localhost:8080\n\t" +
             "\n----------------------------------------------------------");
-    }
-
-    private static void setRedirect(PaymentsResponse.ResultCodeEnum result, Response res) {
-        switch (result) {
-            case AUTHORISED:
-                res.redirect("/result/success");
-                break;
-            case RECEIVED:
-            case PENDING:
-                res.redirect("/result/pending");
-                break;
-            default:
-                res.redirect("/result/failed");
-        }
     }
 
     private static Properties readConfigFile() {
