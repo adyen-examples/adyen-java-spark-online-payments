@@ -49,8 +49,10 @@ The Gradle build will install the following jars from maven central
     apiKey = YourAPIKey
     clientKey = YourClientKey
     ```
-3. Run `./gradlew run`
+2. Run `./gradlew run`
 3. Visit [http://localhost:8080](http://localhost:8080) and select an integration type!
+
+_NOTE: The application will also automatically pick up on the ADYEN_MERCHANT_ACCOUNT, ADYEN_API_KEY and ADYEN_CLIENT_KEY environment variables in case you do not want to create a config.properties file._ 
 
 ## Contributing
 
