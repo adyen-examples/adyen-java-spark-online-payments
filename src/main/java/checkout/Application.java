@@ -27,6 +27,8 @@ public class Application {
         port(8080);
         staticFiles.location("/static");
         Properties prop = readConfigFile();
+
+        System.out.println(prop.getProperty("merchantAccount"));
         String clientKey = prop.getProperty("clientKey");
         CheckoutService checkoutService = new CheckoutService(prop);
 
@@ -99,11 +101,19 @@ public class Application {
 
         Properties prop = new Properties();
 
+        // Reading environment variables
+        prop.setProperty("merchantAccount", System.getenv("ADYEN_MERCHANT_ACCOUNT"));
+        prop.setProperty("apiKey", System.getenv("ADYEN_API_KEY"));
+        prop.setProperty("clientKey",System.getenv("ADYEN_CLIENT_KEY"));
+
+        // Overriding with local properties
+
         try (BufferedInputStream in = new BufferedInputStream(new FileInputStream(CONFIG_FILE))) {
             prop.load(in);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return prop;
     }
 }
