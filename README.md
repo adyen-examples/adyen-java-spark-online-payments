@@ -30,6 +30,8 @@ This repository includes examples of PCI-compliant UI integrations for online pa
 
 [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/adyen-examples/adyen-java-spark-online-payments)
 
+_NOTE: To allow the Adyen Drop-In and Components to load, you  have to add gitpod.io as allowed origin for your chosen set of [API Credentials](https://ca-test.adyen.com/ca/ca/config/api_credentials_new.shtml)_
+
 ## Requirements
 
 * Java 11 (or higher)
