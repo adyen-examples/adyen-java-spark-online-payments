@@ -87,7 +87,7 @@ public class Application {
         });
 
         post("/api/sessions", (req, res) -> {
-            CreateCheckoutSessionResponse response = checkoutService.checkoutsessions();
+            CreateCheckoutSessionResponse response = checkoutService.checkoutsessions(req);
             return gson.toJson(response);
         });
 
